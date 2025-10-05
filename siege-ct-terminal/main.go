@@ -244,7 +244,7 @@ func enter_to_continue() {
 }
 
 func fetch_tickers() {
-	url := "http://localhost:8080/api/tickers"
+	url := "http://localhost:3421/api/tickers"
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		fmt.Printf("Error: could not create request: %s\n", err)
@@ -288,7 +288,7 @@ func fetch_tickers() {
 }
 
 func ticker_ws(ticker string) {
-	ticker_ws := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/ws/ticker/" + strings.Replace(ticker, "/", "-", -1)}
+	ticker_ws := url.URL{Scheme: "ws", Host: "localhost:3421", Path: "/ws/ticker/" + strings.Replace(ticker, "/", "-", -1)}
 	conn, _, err := websocket.DefaultDialer.Dial(ticker_ws.String(), nil)
 	if err != nil {
 		log.Fatal("[DIAL ERROR]", err)
@@ -423,7 +423,7 @@ func connect_trading_ws() error {
 		trading_ws = nil
 	}
 
-	ws_url := url.URL{Scheme: "ws", Host: "localhost:8080", Path: "/ws"}
+	ws_url := url.URL{Scheme: "ws", Host: "localhost:3421", Path: "/ws"}
 	conn, _, err := websocket.DefaultDialer.Dial(ws_url.String(), nil)
 	if err != nil {
 		return fmt.Errorf("failed to connect to trading WebSocket: %v", err)
@@ -491,7 +491,7 @@ func create_new_user() {
 	}
 
 	reqBody := fmt.Sprintf(`{"username":"%s"}`, username)
-	resp, err := http.Post("http://localhost:8080/api/create", "application/json", strings.NewReader(reqBody))
+	resp, err := http.Post("http://localhost:3421/api/create", "application/json", strings.NewReader(reqBody))
 	if err != nil {
 		fmt.Printf("[!] Error: %v\n", err)
 		enter_to_continue()
@@ -535,7 +535,7 @@ func check_assets() {
 	}
 
 	reqBody := fmt.Sprintf(`{"id":"%s"}`, token)
-	resp, err := http.Post("http://localhost:8080/api/assets", "application/json", strings.NewReader(reqBody))
+	resp, err := http.Post("http://localhost:3421/api/assets", "application/json", strings.NewReader(reqBody))
 	if err != nil {
 		fmt.Printf("[!] Error: %v\n", err)
 		enter_to_continue()
@@ -782,7 +782,7 @@ func switch_user() {
 	}
 
 	reqBody := fmt.Sprintf(`{"id":"%s"}`, newToken)
-	resp, err := http.Post("http://localhost:8080/api/assets", "application/json", strings.NewReader(reqBody))
+	resp, err := http.Post("http://localhost:3421/api/assets", "application/json", strings.NewReader(reqBody))
 	if err != nil {
 		fmt.Printf("[!] Error testing token: %v\n", err)
 		enter_to_continue()

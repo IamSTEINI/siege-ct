@@ -351,7 +351,7 @@ func order_fulfiller_worker(queue <-chan ORDER_QUEUE) {
 func limit_order_manager(sql_driver *sql.DB, ctx context.Context, redis_client *redis.Client) {
 	log.Println("[LIMIT ORDER MANAGER] Starting limit order monitoring...")
 
-	ticker_timer := time.NewTicker(2 * time.Second)
+	ticker_timer := time.NewTicker(8 * time.Second)
 	defer ticker_timer.Stop()
 
 	for {
@@ -1165,10 +1165,30 @@ func check_user_assets(asset string, amount float64, user_token string) (bool, e
 
 	log.Printf("[UAC] Retrieved %d assets for account %s", len(assets), accountId)
 
-	for i, userAsset := range assets {
+	assetTotals := make(map[string]float64)
+
+	for _, userAsset := range assets {
 		assetName := userAsset["asset_name"].(string)
 		assetAmount := userAsset["amount"].(float64)
-		log.Printf("[UAC] Asset %d: %s = %.8f", i+1, assetName, assetAmount)
+		assetTotals[assetName] += assetAmount
+	}
+
+	i := 1
+	for assetName, totalAmount := range assetTotals {
+		log.Printf("[UAC] Asset %d: %s = %.8f (aggregated)", i, assetName, totalAmount)
+		i++
+	}
+
+	if totalAmount, exists := assetTotals[asset]; exists {
+		log.Printf("[UAC] Found matching asset %s: user has %.8f total, needs %.8f", asset, totalAmount, amount)
+		if totalAmount >= amount {
+			log.Printf("[UAC SUCCESS] User has sufficient %s balance: %.8f >= %.8f", asset, totalAmount, amount)
+			return true, nil
+		} else {
+			log.Printf("[UAC FAIL] Insufficient %s balance: user has %.8f total, needs %.8f (shortfall: %.8f)",
+				asset, totalAmount, amount, amount-totalAmount)
+			return false, nil
+		}
 	}
 
 	for _, userAsset := range assets {
@@ -1952,7 +1972,7 @@ func handle_http() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "3421"
 	}
 
 	log.Printf("[HTTP SERVER] Starting server on port %s", port)

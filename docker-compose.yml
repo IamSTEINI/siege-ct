@@ -1,11 +1,29 @@
 version: '3.8'
 
 services:
-  siege-ct-server:
-    build: .
+  # Next.js Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - "80:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3421
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - siege-network
+
+  # Go API Server  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     ports:
       - "3421:3421"
-      - "80:3421"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-defaultpassword}
       - PORT=3421
