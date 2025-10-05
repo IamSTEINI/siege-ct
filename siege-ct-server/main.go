@@ -1929,6 +1929,7 @@ func websocket_handler(w http.ResponseWriter, r *http.Request) {
 func handle_http() {
 	router := mux.NewRouter()
 	router.Use(logging_middleware)
+
 	router.HandleFunc("/ws/status", status)
 	router.HandleFunc("/ws/ticker/{ticker}", ticker_ws)
 	router.HandleFunc("/ws", websocket_handler)
@@ -1938,10 +1939,26 @@ func handle_http() {
 	router.HandleFunc("/api/assets", get_assets).Methods("POST")
 	// router.HandleFunc("/api/orders", get_orders).Methods("POST")
 	router.HandleFunc("/api/orders/cancel", cancel_order_handler).Methods("POST")
-	log.Println("[WEBSOCKET] started on 8080")
-	err := http.ListenAndServe(":8080", router)
+
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
+
+	staticDir := "./public/"
+	if _, err := os.Stat(staticDir); err == nil {
+		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir(staticDir))))
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("[HTTP SERVER] Starting server on port %s", port)
+	err := http.ListenAndServe(":"+port, router)
 	if err != nil {
-		log.Println("[ERROR] [WEBSOCKET]: ", err)
+		log.Println("[ERROR] [HTTP SERVER]: ", err)
 	}
 }
 

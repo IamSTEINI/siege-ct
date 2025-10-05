@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  siege-ct-server:
+    build: .
+    ports:
+      - "3421:3421"
+      - "80:3421"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-defaultpassword}
+      - PORT=3421
+    depends_on:
+      - redis
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - siege-network
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-defaultpassword}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - siege-network
+
+volumes:
+  redis_data:
+
+networks:
+  siege-network:
+    driver: bridge
