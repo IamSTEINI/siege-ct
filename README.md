@@ -7,6 +7,10 @@ Welcome to SIEGE CT, a trading simulation that demonstrates how cryptocurrency e
 ## 🎯 What is SIEGE CT?
 
 **DEMO:** https://youtu.be/IvVmYbKACPE
+
+**STATUS** http://93.115.172.67:3000/
+
+
 SIEGE CT simulates a complete trading ecosystem where you can experience real exchange mechanics without any financial risk. You get to see how market orders work, how limit orders execute when prices are reached, and how the overall market price gets determined through actual trading activity.
 
 The system consists of two main parts: a server that handles all the trading logic and a terminal client that lets you interact with the market. Both work together to create a realistic trading experience.
