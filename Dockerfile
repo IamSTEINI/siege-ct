@@ -24,6 +24,7 @@ COPY next.config.ts ./
 COPY tsconfig.json ./
 COPY postcss.config.mjs ./
 COPY eslint.config.mjs ./
+COPY next-env.d.ts ./
 
 RUN npm run build
 FROM alpine:latest
